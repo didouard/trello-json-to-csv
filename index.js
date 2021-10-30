@@ -1,7 +1,8 @@
 // const trelloJson  = require('./YUe4pSHn.json');
 const fastCSV = require('fast-csv');
 const _ = require('lodash');
-const fs = require('fs')
+const fs = require('fs');
+const m = require('moment');
 
 const INPUT_FOLDER_PATH = './input-folder/';
 const OUTPUT_FOLDER_PATH = './output-folder/';
@@ -36,14 +37,20 @@ function convertToCSVFile(file) {
             member = _.find(members, { id: card.idMembers[0] }).fullName;
         }
         cardName = card.name;
-        newList.push({
+        drone = {
             listName: listName,
-            title: card.name,
-            shortUrl: card.shortUrl,
-            url: card.url,
-            member: member,
-        });
+            title: card.name
+        };
+	card.customFieldItems.forEach(field => {
+	    if (field.idCustomField == '60a629720946e84eff1300a0') {
+		//console.log(field.value.text)
+		drone["serialNumber"] = field.value.text
+	    } else if (field.idCustomField == '60a629720946e84eff1300a0') {
+		drone["purchaseDate"] = m(field.value.date).format()
+	    }
+	});
 
+	newList.push(drone)
     });
     writeToFile(file, newList)
 }
